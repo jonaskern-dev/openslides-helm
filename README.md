@@ -6,7 +6,7 @@ Helm charts for deploying [OpenSlides](https://openslides.com) on Kubernetes.
 
 ### [openslides-k3s-traefik](charts/openslides-k3s-traefik/)
 
-Production-ready Helm chart for deploying OpenSlides 4.2.11 on k3s/k3d clusters with native Traefik IngressRoute support.
+Production-ready Helm chart for deploying OpenSlides 4.x on k3s/k3d clusters with native Traefik IngressRoute support.
 
 **Features:**
 - Native k3s/k3d support with Traefik IngressRoutes
