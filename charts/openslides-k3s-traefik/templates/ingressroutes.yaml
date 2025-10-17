@@ -1,0 +1,290 @@
+# ==============================================================================
+# templates/ingressroutes.yaml - Traefik IngressRoutes
+# ==============================================================================
+{{- if .Values.traefik.enabled }}
+# Client (Main Entry)
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-client
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`)
+    kind: Rule
+    priority: 10
+    services:
+    - name: client
+      port: {{ .Values.services.client.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Backend Action
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-action
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/action`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: backendaction
+      port: {{ .Values.services.backendAction.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Backend Presenter
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-presenter
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/presenter`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: backendpresenter
+      port: {{ .Values.services.backendPresenter.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Backend Manage
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-manage
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/manage`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: backendmanage
+      port: {{ .Values.services.backendManage.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Datastore Reader
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-datastore-reader
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/datastore/reader`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: datastorereader
+      port: {{ .Values.services.datastoreReader.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Datastore Writer
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-datastore-writer
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/datastore/writer`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: datastorewriter
+      port: {{ .Values.services.datastoreWriter.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Autoupdate
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-autoupdate
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/autoupdate`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: autoupdate
+      port: {{ .Values.services.autoupdate.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Search
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-search
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/search`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: search
+      port: {{ .Values.services.search.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Auth
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-auth
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && (PathPrefix(`/system/auth`) || PathPrefix(`/system/saml`))
+    kind: Rule
+    priority: 100
+    services:
+    - name: auth
+      port: {{ .Values.services.auth.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Vote
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-vote
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/vote`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: vote
+      port: {{ .Values.services.vote.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Media
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-media
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/media`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: media
+      port: {{ .Values.services.media.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# ICC
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-icc
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/icc`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: icc
+      port: {{ .Values.services.icc.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+
+# Manage Service
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: openslides-manage-service
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  entryPoints:
+  - {{ .Values.traefik.entryPoint }}
+  routes:
+  - match: Host(`{{ .Values.global.domain }}`) && PathPrefix(`/system/manage-service`)
+    kind: Rule
+    priority: 100
+    services:
+    - name: manage
+      port: {{ .Values.services.manage.port }}
+  {{- if .Values.tls.enabled }}
+  tls:
+    secretName: {{ .Values.tls.secretName }}
+  {{- end }}
+{{- end }}

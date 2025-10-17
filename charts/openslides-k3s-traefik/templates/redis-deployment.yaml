@@ -1,0 +1,45 @@
+# ==============================================================================
+# templates/redis-deployment.yaml
+# ==============================================================================
+{{- if .Values.redis.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+  selector:
+    app: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: {{ .Values.redis.image }}
+        command: ["redis-server", "--save", ""]
+        ports:
+        - containerPort: 6379
+        resources: {{ toYaml .Values.redis.resources | nindent 10 }}
+        livenessProbe:
+          tcpSocket:
+            port: 6379
+          initialDelaySeconds: 5
+          periodSeconds: 5
+{{- end }}
+

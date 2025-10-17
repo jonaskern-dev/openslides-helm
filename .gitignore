@@ -1,0 +1,38 @@
+# Helm
+*.tgz
+Chart.lock
+
+# Helm dependency charts (not our source charts)
+charts/*/charts/
+charts/**/charts/
+
+# Secrets - NEVER commit
+secrets/
+*.key
+*.crt
+*.pem
+values-dev.yaml
+values-prod.yaml
+values-stage.yaml
+values-*-secrets.yaml
+
+# JetBrains
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Temp
+*.tmp
+*.bak
+*.swp
+*~
+
+# Build artifacts
+dist/
+build/

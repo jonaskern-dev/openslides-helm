@@ -1,0 +1,20 @@
+# ==============================================================================
+# templates/services.yaml - K8s Services for all Microservices
+# ==============================================================================
+{{- range $service, $config := .Values.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $service | lower }}
+  labels: {{ include "openslides.labels" $ | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ $config.port }}
+    targetPort: {{ $config.port }}
+    protocol: TCP
+  selector:
+    app: {{ $service | lower }}
+{{- end }}
+

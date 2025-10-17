@@ -1,0 +1,136 @@
+# ==============================================================================
+# values.yaml - Main Configuration
+# ==============================================================================
+# Global Configuration
+global:
+  domain: openslides.example.com
+  imageTag: "4.2.11"
+  imagePullPolicy: IfNotPresent
+
+# Traefik Configuration
+traefik:
+  enabled: true
+  entryPoint: websecure
+
+# TLS/Certificate Configuration
+# Requires cert-manager to be installed for automatic certificate management
+# If issuer is empty, you must manually create the TLS secret
+tls:
+  enabled: true
+  # ClusterIssuer name (leave empty to disable automatic certificate creation)
+  # Example: "letsencrypt-prod", "letsencrypt-staging"
+  issuer: ""
+  secretName: "openslides-tls"
+
+# Resource Limits
+resources:
+  client:
+    limits: {cpu: 500m, memory: 512Mi}
+    requests: {cpu: 100m, memory: 128Mi}
+  backend:
+    limits: {cpu: 1000m, memory: 1Gi}
+    requests: {cpu: 200m, memory: 256Mi}
+  datastore:
+    limits: {cpu: 500m, memory: 512Mi}
+    requests: {cpu: 100m, memory: 128Mi}
+
+# PostgreSQL StatefulSet
+postgres:
+  enabled: true
+  image: postgres:15
+  storageClass: local-path
+  storage: 20Gi
+  database: openslides
+  user: openslides
+  # Password in secrets
+
+# Redis Configuration
+redis:
+  enabled: true
+  image: redis:alpine
+  resources:
+    limits: {cpu: 250m, memory: 256Mi}
+    requests: {cpu: 50m, memory: 64Mi}
+
+# Email Configuration
+email:
+  host: smtp.example.com
+  port: 587
+  user: openslides@example.com
+  from: openslides@example.com
+  security: STARTTLS
+  timeout: 5
+
+# Service Configuration
+services:
+  client:
+    port: 9001
+    replicas: 2
+  backendAction:
+    port: 9002
+    replicas: 2
+  backendPresenter:
+    port: 9003
+    replicas: 2
+  backendManage:
+    port: 9002
+    replicas: 1
+  datastoreReader:
+    port: 9010
+    replicas: 2
+    workers: 8
+  datastoreWriter:
+    port: 9011
+    replicas: 1
+  autoupdate:
+    port: 9012
+    replicas: 2
+  search:
+    port: 9050
+    replicas: 1
+  auth:
+    port: 9004
+    replicas: 2
+  vote:
+    port: 9013
+    replicas: 2
+  media:
+    port: 9006
+    replicas: 2
+  icc:
+    port: 9007
+    replicas: 2
+  manage:
+    port: 9008
+    replicas: 1
+
+# Secrets Configuration
+# ======================
+# Secrets are auto-generated if left empty (recommended for first installation).
+# To use specific values, provide them here (they will override auto-generation).
+# To use an existing Kubernetes secret, set existingSecret below.
+#
+# Auto-Generated Secrets:
+#   - authTokenKey, authCookieKey, internalAuthPassword, manageAuthPassword
+#   - superadmin, postgresPassword
+#   These are created automatically if empty using: openssl rand -base64 32
+#   Generated passwords are displayed after installation (see NOTES)
+#
+# User-Provided Secrets:
+#   - emailPassword: OPTIONAL - if empty, email features will be disabled
+#
+existingSecret: ""  # Set to use an existing Kubernetes secret instead of creating a new one
+
+secrets:
+  # Auto-generated if empty (recommended)
+  authTokenKey: ""
+  authCookieKey: ""
+  internalAuthPassword: ""
+  manageAuthPassword: ""
+  superadmin: ""           # Displayed after installation if auto-generated
+  postgresPassword: ""     # Important for backups - displayed after installation
+
+  # Optional: Email password
+  # If empty, email features will be disabled with a warning
+  # Provide this value to enable email functionality in OpenSlides
+  emailPassword: ""

@@ -1,0 +1,98 @@
+{{- range $service, $config := .Values.services }}
+{{- $imageName := "" }}
+{{- if hasPrefix "backend" $service }}
+  {{- $imageName = "backend" }}
+{{- else if eq $service "datastoreReader" }}
+  {{- $imageName = "datastore-reader" }}
+{{- else if eq $service "datastoreWriter" }}
+  {{- $imageName = "datastore-writer" }}
+{{- else }}
+  {{- $imageName = $service | lower }}
+{{- end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $service | lower }}
+  labels:
+    {{ include "openslides.labels" $ | nindent 4 }}
+    app: {{ $service | lower }}
+spec:
+  replicas: {{ $config.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $service | lower }}
+  template:
+    metadata:
+      labels:
+        app: {{ $service | lower }}
+    spec:
+      containers:
+        - name: {{ $service | lower }}
+          image: "ghcr.io/openslides/openslides/openslides-{{ $imageName }}:{{ $.Values.global.imageTag }}"
+          imagePullPolicy: {{ $.Values.global.imagePullPolicy }}
+          ports:
+            - containerPort: {{ $config.port }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "openslides.fullname" $ }}-config
+          env:
+        {{- if hasPrefix "backend" $service }}
+        {{- if eq $service "backendManage" }}
+            - name: OPENSLIDES_BACKEND_COMPONENT
+              value: "action"
+            - name: OPENSLIDES_BACKEND_CREATE_INITIAL_DATA
+              value: "1"
+            - name: ACTION_HOST
+              value: "backendmanage"
+        {{- else }}
+            - name: OPENSLIDES_BACKEND_COMPONENT
+              value: {{ $service | lower | replace "backend" "" | quote }}
+        {{- end }}
+        {{- end }}
+        {{- if hasPrefix "datastore" $service }}
+        {{- if eq $service "datastoreReader" }}
+            - name: NUM_WORKERS
+              value: {{ $.Values.services.datastoreReader.workers | quote }}
+        {{- end }}
+        {{- end }}
+          volumeMounts:
+            - name: secrets
+              mountPath: /secrets
+              readOnly: true
+          resources:
+            {{- if hasPrefix "backend" $service }}
+            {{- toYaml $.Values.resources.backend | nindent 12 }}
+            {{- else if hasPrefix "datastore" $service }}
+            {{- toYaml $.Values.resources.datastore | nindent 12 }}
+            {{- else }}
+            {{- toYaml $.Values.resources.client | nindent 12 }}
+            {{- end }}
+          livenessProbe:
+            tcpSocket:
+              port: {{ $config.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: {{ $config.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      volumes:
+        - name: secrets
+          secret:
+            secretName: {{ include "openslides.fullname" $ }}-secrets
+            items:
+              - key: auth_token_key
+                path: auth_token_key
+              - key: auth_cookie_key
+                path: auth_cookie_key
+              - key: internal_auth_password
+                path: internal_auth_password
+              - key: manage_auth_password
+                path: manage_auth_password
+              - key: superadmin
+                path: superadmin
+              - key: postgres_password
+                path: postgres_password
+{{- end }}

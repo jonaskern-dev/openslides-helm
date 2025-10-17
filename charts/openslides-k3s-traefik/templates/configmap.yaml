@@ -1,0 +1,81 @@
+# ==============================================================================
+# templates/configmap.yaml - Shared Environment Variables
+# ==============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "openslides.fullname" . }}-config
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+data:
+  # Service Discovery
+  ACTION_HOST: "backendaction"
+  ACTION_PORT: "9002"
+  AUTH_HOST: "auth"
+  AUTH_PORT: "9004"
+  AUTOUPDATE_HOST: "autoupdate"
+  AUTOUPDATE_PORT: "9012"
+  PRESENTER_HOST: "backendpresenter"
+  PRESENTER_PORT: "9003"
+  MANAGE_HOST: "backendmanage"
+  MANAGE_PORT: "9008"
+  DATASTORE_READER_HOST: "datastorereader"
+  DATASTORE_READER_PORT: "9010"
+  DATASTORE_WRITER_HOST: "datastorewriter"
+  DATASTORE_WRITER_PORT: "9011"
+  MEDIA_HOST: "media"
+  MEDIA_PORT: "9006"
+  SEARCH_HOST: "search"
+  SEARCH_PORT: "9050"
+  VOTE_HOST: "vote"
+  VOTE_PORT: "9013"
+  ICC_HOST: "icc"
+  ICC_PORT: "9007"
+  
+  # Database
+  DATABASE_HOST: "postgres"
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: {{ .Values.postgres.database | quote }}
+  DATABASE_USER: {{ .Values.postgres.user | quote }}
+  DATABASE_PASSWORD_FILE: "/secrets/postgres_password"
+  MEDIA_DATABASE_HOST: "postgres"
+  MEDIA_DATABASE_PORT: "5432"
+  MEDIA_DATABASE_NAME: {{ .Values.postgres.database | quote }}
+  MEDIA_DATABASE_USER: {{ .Values.postgres.user | quote }}
+  MEDIA_DATABASE_PASSWORD_FILE: "/secrets/postgres_password"
+  VOTE_DATABASE_HOST: "postgres"
+  VOTE_DATABASE_PORT: "5432"
+  VOTE_DATABASE_NAME: {{ .Values.postgres.database | quote }}
+  VOTE_DATABASE_USER: {{ .Values.postgres.user | quote }}
+  VOTE_DATABASE_PASSWORD_FILE: "/secrets/postgres_password"
+  
+  # Cache/Message Bus
+  CACHE_HOST: "redis"
+  CACHE_PORT: "6379"
+  MESSAGE_BUS_HOST: "redis"
+  MESSAGE_BUS_PORT: "6379"
+  
+  # URLs
+  RESTRICTER_URL: "http://autoupdate:9012/internal/autoupdate"
+
+  # Secret File Paths
+  AUTH_TOKEN_KEY_FILE: "/secrets/auth_token_key"
+  AUTH_COOKIE_KEY_FILE: "/secrets/auth_cookie_key"
+  INTERNAL_AUTH_PASSWORD_FILE: "/secrets/internal_auth_password"
+  MANAGE_AUTH_PASSWORD_FILE: "/secrets/manage_auth_password"
+  SUPERADMIN_PASSWORD_FILE: "/secrets/superadmin"
+
+  # Application Settings
+  OPENSLIDES_DEVELOPMENT: "false"
+  OPENSLIDES_LOGLEVEL: "info"
+  {{- if .Values.secrets.emailPassword }}
+
+  # Email Configuration
+  EMAIL_HOST: {{ .Values.email.host | quote }}
+  EMAIL_PORT: {{ .Values.email.port | quote }}
+  EMAIL_HOST_USER: {{ .Values.email.user | quote }}
+  EMAIL_HOST_PASSWORD: {{ .Values.secrets.emailPassword | quote }}
+  EMAIL_CONNECTION_SECURITY: {{ .Values.email.security | quote }}
+  EMAIL_TIMEOUT: {{ .Values.email.timeout | quote }}
+  EMAIL_ACCEPT_SELF_SIGNED_CERTIFICATE: "false"
+  DEFAULT_FROM_EMAIL: {{ .Values.email.from | quote }}
+  {{- end }}

@@ -1,0 +1,62 @@
+===============================================================================
+  OpenSlides {{ .Chart.AppVersion }} successfully installed!
+===============================================================================
+
+Your OpenSlides installation is ready at:
+
+  https://{{ .Values.global.domain }}
+
+{{- if not .Values.existingSecret }}
+
+IMPORTANT: Generated Secrets
+-----------------------------
+{{- if not .Values.secrets.superadmin }}
+
+Your SUPERADMIN password has been auto-generated.
+To retrieve it, run:
+
+  kubectl get secret {{ include "openslides.fullname" . }}-secrets -n {{ .Release.Namespace }} -o jsonpath='{.data.superadmin}' | base64 -d && echo
+{{- end }}
+
+{{- if not .Values.secrets.postgresPassword }}
+
+Your POSTGRES password has been auto-generated (important for backups).
+To retrieve it, run:
+
+  kubectl get secret {{ include "openslides.fullname" . }}-secrets -n {{ .Release.Namespace }} -o jsonpath='{.data.postgres_password}' | base64 -d && echo
+{{- end }}
+
+{{- if not .Values.secrets.emailPassword }}
+
+WARNING: Email Features Disabled
+---------------------------------
+No email password was provided (secrets.emailPassword is empty).
+Email features in OpenSlides are currently disabled.
+
+To enable email features, add the password to your values file:
+
+  secrets:
+    emailPassword: "your-email-password"
+
+Then upgrade the release:
+
+  helm upgrade {{ .Release.Name }} . -f your-values.yaml
+{{- else }}
+
+Email features are enabled and configured.
+{{- end }}
+{{- end }}
+
+Next Steps
+----------
+1. Access OpenSlides at https://{{ .Values.global.domain }}
+2. Login with username 'admin' and your superadmin password
+3. Configure your organization settings
+
+Documentation
+-------------
+For more information, visit:
+- OpenSlides Docs: https://openslides.com/docs/
+- Chart Repository: https://github.com/jonaskern-dev/openslides-k3s-traefik
+
+===============================================================================

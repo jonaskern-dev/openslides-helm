@@ -1,0 +1,15 @@
+{{- if and .Values.tls.enabled .Values.tls.issuer }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ include "openslides.fullname" . }}-tls
+  labels: {{ include "openslides.labels" . | nindent 4 }}
+spec:
+  secretName: {{ .Values.tls.secretName }}
+  issuerRef:
+    name: {{ .Values.tls.issuer }}
+    kind: ClusterIssuer
+  dnsNames:
+  - {{ .Values.global.domain }}
+{{- end }}

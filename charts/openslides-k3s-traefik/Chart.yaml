@@ -1,0 +1,24 @@
+# ==============================================================================
+# Chart.yaml
+# ==============================================================================
+apiVersion: v2
+name: openslides-k3s-traefik
+description: OpenSlides Democracy Platform for k3s/k3d with native Traefik integration
+type: application
+version: 1.0.0
+appVersion: "4.2.11"
+license: MIT
+home: https://jonaskern.dev
+sources:
+  - https://github.com/jonaskern-dev/openslides-helm
+  - https://github.com/OpenSlides/OpenSlides
+keywords:
+  - openslides
+  - democracy
+  - voting
+  - k3s
+  - k3d
+  - traefik
+maintainers:
+  - name: Jonas Kern
+    url: https://jonaskern.dev
