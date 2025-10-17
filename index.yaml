@@ -1,3 +1,28 @@
 apiVersion: v1
-entries: {}
-generated: "2025-10-17T10:48:45Z"
+entries:
+  openslides-k3s-traefik:
+  - apiVersion: v2
+    appVersion: 4.2.11
+    created: "2025-10-17T10:50:14.916258086Z"
+    description: OpenSlides Democracy Platform for k3s/k3d with native Traefik integration
+    digest: 0e95d552c413705585b82ddeea1a32c917b037df28793e025fa6969e94d8f77a
+    home: https://jonaskern.dev
+    keywords:
+    - openslides
+    - democracy
+    - voting
+    - k3s
+    - k3d
+    - traefik
+    maintainers:
+    - name: Jonas Kern
+      url: https://jonaskern.dev
+    name: openslides-k3s-traefik
+    sources:
+    - https://github.com/jonaskern-dev/openslides-helm
+    - https://github.com/OpenSlides/OpenSlides
+    type: application
+    urls:
+    - https://github.com/jonaskern-dev/openslides-helm/releases/download/openslides-k3s-traefik-1.0.2/openslides-k3s-traefik-1.0.2.tgz
+    version: 1.0.2
+generated: "2025-10-17T10:50:14.916268335Z"
