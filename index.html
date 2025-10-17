@@ -222,7 +222,6 @@ helm repo update</div>
             <h2>Resources</h2>
             <div class="links">
                 <a href="https://github.com/jonaskern-dev/openslides-helm" class="btn">GitHub Repository</a>
-                <a href="https://github.com/jonaskern-dev/openslides-helm/tree/main/charts/openslides-k3s-traefik" class="btn btn-secondary">Chart Documentation</a>
                 <a href="./index.yaml" class="btn btn-secondary">index.yaml</a>
             </div>
         </div>
@@ -279,6 +278,7 @@ helm repo update</div>
                 let codeBlockIndex = 2;
 
                 charts.forEach(chart => {
+                    const docUrl = `https://github.com/jonaskern-dev/openslides-helm/tree/main/charts/${chart.name}`;
                     html += `
                         <div class="chart-list">
                             <div class="chart-item">
@@ -291,6 +291,9 @@ helm repo update</div>
                             <button class="copy-btn" onclick="copyCode(this, 'code${codeBlockIndex}')">Copy</button>
                             <div class="code-block" id="code${codeBlockIndex}">helm install ${chart.name} openslides/${chart.name}</div>
                         </div>
+                        <p style="margin-top: 10px;">
+                            <a href="${docUrl}" style="color: #1e40af; font-weight: 600; text-decoration: none;" target="_blank">Documentation →</a>
+                        </p>
                     `;
                     codeBlockIndex++;
                 });
@@ -305,34 +308,45 @@ helm repo update</div>
         function parseIndexYaml(yamlText) {
             const charts = [];
             const lines = yamlText.split('\n');
-            let currentChart = null;
+            let currentChartName = null;
+            let inChartEntry = false;
+            let currentChart = {};
 
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
 
-                const chartNameMatch = line.match(/^\s{2}([a-z0-9-]+):/);
+                const chartNameMatch = line.match(/^  ([a-z0-9-]+):/);
                 if (chartNameMatch) {
-                    currentChart = { name: chartNameMatch[1] };
+                    currentChartName = chartNameMatch[1];
                     continue;
                 }
 
-                if (currentChart && line.includes('- apiVersion:')) {
-                    for (let j = i; j < Math.min(i + 10, lines.length); j++) {
-                        const versionMatch = lines[j].match(/^\s+version:\s*"?([^"]+)"?/);
-                        if (versionMatch) {
-                            currentChart.version = versionMatch[1];
-                        }
+                if (currentChartName && line.match(/^  - apiVersion:/)) {
+                    inChartEntry = true;
+                    currentChart = {};
+                    continue;
+                }
 
-                        const descMatch = lines[j].match(/^\s+description:\s*(.+)$/);
-                        if (descMatch) {
-                            currentChart.description = descMatch[1].replace(/^["']|["']$/g, '');
-                        }
+                if (inChartEntry) {
+                    const nameMatch = line.match(/^    name:\s*(.+)$/);
+                    if (nameMatch) {
+                        currentChart.name = nameMatch[1].replace(/^["']|["']$/g, '');
+                    }
 
-                        if (currentChart.version && currentChart.description) {
-                            charts.push({ ...currentChart });
-                            currentChart = null;
-                            break;
-                        }
+                    const versionMatch = line.match(/^    version:\s*(.+)$/);
+                    if (versionMatch) {
+                        currentChart.version = versionMatch[1].replace(/^["']|["']$/g, '');
+                    }
+
+                    const descMatch = line.match(/^    description:\s*(.+)$/);
+                    if (descMatch) {
+                        currentChart.description = descMatch[1].replace(/^["']|["']$/g, '');
+                    }
+
+                    if (currentChart.name && currentChart.version && currentChart.description) {
+                        charts.push({ ...currentChart });
+                        inChartEntry = false;
+                        currentChart = {};
                     }
                 }
             }
