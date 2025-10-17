@@ -200,16 +200,8 @@ helm repo update</div>
 
         <div class="section">
             <h2>Available Charts</h2>
-            <div class="chart-list">
-                <div class="chart-item">
-                    <strong>openslides-k3s-traefik</strong> (v1.0.2)<br>
-                    Production-ready chart for k3s/k3d clusters with native Traefik integration
-                </div>
-            </div>
-            <p style="margin-top: 20px;">Install the chart:</p>
-            <div class="code-wrapper">
-                <button class="copy-btn" onclick="copyCode(this, 'code2')">Copy</button>
-                <div class="code-block" id="code2">helm install openslides openslides/openslides-k3s-traefik</div>
+            <div id="charts-container">
+                <p style="color: #6b7280;">Loading charts...</p>
             </div>
         </div>
 
@@ -268,6 +260,87 @@ helm repo update</div>
                 console.error('Failed to copy:', err);
             });
         }
+
+        async function loadCharts() {
+            const container = document.getElementById('charts-container');
+
+            try {
+                const response = await fetch('./index.yaml');
+                const yamlText = await response.text();
+
+                const charts = parseIndexYaml(yamlText);
+
+                if (charts.length === 0) {
+                    container.innerHTML = '<p style="color: #6b7280;">No charts available yet.</p>';
+                    return;
+                }
+
+                let html = '';
+                let codeBlockIndex = 2;
+
+                charts.forEach(chart => {
+                    html += `
+                        <div class="chart-list">
+                            <div class="chart-item">
+                                <strong>${chart.name}</strong> (v${chart.version})<br>
+                                ${chart.description}
+                            </div>
+                        </div>
+                        <p style="margin-top: 20px;">Install the chart:</p>
+                        <div class="code-wrapper">
+                            <button class="copy-btn" onclick="copyCode(this, 'code${codeBlockIndex}')">Copy</button>
+                            <div class="code-block" id="code${codeBlockIndex}">helm install ${chart.name} openslides/${chart.name}</div>
+                        </div>
+                    `;
+                    codeBlockIndex++;
+                });
+
+                container.innerHTML = html;
+            } catch (err) {
+                console.error('Failed to load charts:', err);
+                container.innerHTML = '<p style="color: #ef4444;">Failed to load charts. Please check the <a href="./index.yaml" style="color: #1e40af;">index.yaml</a> directly.</p>';
+            }
+        }
+
+        function parseIndexYaml(yamlText) {
+            const charts = [];
+            const lines = yamlText.split('\n');
+            let currentChart = null;
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+
+                const chartNameMatch = line.match(/^\s{2}([a-z0-9-]+):/);
+                if (chartNameMatch) {
+                    currentChart = { name: chartNameMatch[1] };
+                    continue;
+                }
+
+                if (currentChart && line.includes('- apiVersion:')) {
+                    for (let j = i; j < Math.min(i + 10, lines.length); j++) {
+                        const versionMatch = lines[j].match(/^\s+version:\s*"?([^"]+)"?/);
+                        if (versionMatch) {
+                            currentChart.version = versionMatch[1];
+                        }
+
+                        const descMatch = lines[j].match(/^\s+description:\s*(.+)$/);
+                        if (descMatch) {
+                            currentChart.description = descMatch[1].replace(/^["']|["']$/g, '');
+                        }
+
+                        if (currentChart.version && currentChart.description) {
+                            charts.push({ ...currentChart });
+                            currentChart = null;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return charts;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCharts);
     </script>
 </body>
 </html>
