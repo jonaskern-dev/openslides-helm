@@ -4,7 +4,7 @@
 # Global Configuration
 global:
   domain: openslides.example.com
-  imageTag: "4.2.11"
+  imageTag: "4.2.23"
   imagePullPolicy: IfNotPresent
 
 # Traefik Configuration

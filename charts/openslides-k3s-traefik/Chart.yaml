@@ -5,8 +5,8 @@ apiVersion: v2
 name: openslides-k3s-traefik
 description: OpenSlides Democracy Platform for k3s/k3d with native Traefik integration
 type: application
-version: 1.0.2
-appVersion: "4.2.11"
+version: 1.0.3
+appVersion: "4.2.23"
 license: MIT
 home: https://jonaskern.dev
 sources:

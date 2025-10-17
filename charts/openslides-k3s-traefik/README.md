@@ -1,6 +1,6 @@
 # OpenSlides Helm Chart for k3s/k3d with Traefik
 
-A production-ready Helm chart for deploying [OpenSlides](https://openslides.com/) on k3s/k3d clusters with native Traefik integration.
+A production-ready Helm chart for deploying [OpenSlides 4.2.23](https://openslides.com/) on k3s/k3d clusters with native Traefik integration.
 
 ## Features
 
@@ -18,6 +18,11 @@ A production-ready Helm chart for deploying [OpenSlides](https://openslides.com/
 - Helm 3.x
 - Traefik ingress controller (usually pre-installed in k3s/k3d)
 - **Optional:** [cert-manager](https://cert-manager.io/) for automatic TLS certificate management
+
+## Documentation
+
+- [Upgrade Guide](./UPGRADE.md) - Version upgrades, backup/restore, migrations
+- [Values Documentation](#configuration) - Configuration options below
 
 ## Quick Start
 
